@@ -1,0 +1,86 @@
+# --- Entornos virtuales ---
+venv/
+.env/
+.venv/
+env/
+ENV/
+
+# --- Archivos de configuración sensibles ---
+*.env
+*.ini
+*.cfg
+*.toml
+
+# --- Compilados de Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# --- Logs ---
+*.log
+*.out
+*.err
+
+# --- Cache y metadata ---
+*.sqlite3
+db.sqlite3
+*.db
+*.sql
+*.pid
+*.seed
+*.cover
+
+# --- Migraciones (puedes excluir si usas Alembic) ---
+app/database/migrations/versions/*.py
+
+# --- Configuración de editores ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Dependencias ---
+*.bak
+*.tmp
+*.cache
+.cache/
+pip-wheel-metadata/
+__pypackages__/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# --- Archivos de documentación generados ---
+docs/_build/
+site/
+
+# --- Archivos de FastAPI/uvicorn ---
+*.db-journal
+*.lock
+uvicorn.log
+
+# --- Docker ---
+docker-compose.override.yml
+.docker/
+*.dockerfile
+
+# --- Jupyter / experimentos ---
+*.ipynb
+.ipynb_checkpoints/
+
+# --- Entornos de test ---
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
