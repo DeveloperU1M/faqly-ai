@@ -1,24 +1,24 @@
 # --- Framework principal ---
-fastapi==0.115.0       # Framework web
-uvicorn[standard]==0.30.0  # Servidor ASGI (para correr FastAPI)
+fastapi==0.115.0              # Framework web
+uvicorn[standard]==0.30.0     # Servidor ASGI (para correr FastAPI)
 
 # --- Base de datos ---
-SQLAlchemy==2.0.34     # ORM
-psycopg2-binary==2.9.9 # Driver PostgreSQL
-alembic==1.13.2        # Migraciones de DB
+SQLAlchemy==2.0.34            # ORM
+psycopg2-binary==2.9.9        # Driver PostgreSQL (compatible con 3.12)
+alembic==1.13.2               # Migraciones de DB
 
 # --- Seguridad y autenticación ---
-python-jose[cryptography]==3.3.0  # JWT (tokens)
-passlib[bcrypt]==1.7.4            # Hash de contraseñas
+python-jose[cryptography]==3.3.0   # JWT (tokens)
+passlib[bcrypt]==1.7.4             # Hash de contraseñas
 
 # --- Utilidades ---
-python-multipart==0.0.9   # Subida de archivos
-pydantic==2.9.2           # Validación de datos (schemas)
+python-multipart==0.0.9        # Subida de archivos
+pydantic==2.9.2                # Validación de datos (schemas)
 
-# --- Procesamiento de documentos (para más adelante) ---
-unstructured==0.15.9      # Conversión de documentos a texto
-python-docx==1.1.2        # Manejo de .docx
-pdfminer.six==20231228    # Manejo de PDFs
+# --- Procesamiento de documentos ---
+unstructured==0.12.5           # Conversión de documentos a texto (estable en 3.12)
+python-docx==1.1.2             # Manejo de .docx
+pdfminer.six==20231228         # Manejo de PDFs
 
-# --- Vectores (cuando implementemos embeddings) ---
-pgvector==0.2.5           # Extensión para PostgreSQL (manejo de embeddings)
+# --- Vectores (para embeddings) ---
+pgvector==0.2.4                # Extensión estable en Python 3.12
