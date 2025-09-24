@@ -1,0 +1,29 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+from app.api.v1.users import services, repository
+from app.api.v1.users.schemas import UserCreate, UserOut
+
+router = APIRouter(prefix="/users", tags=["Users"])
+
+@router.post("/", response_model=UserOut)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    try:
+        new_user = services.create_user_service(db, user)
+        return new_user
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail="Error interno del servidor")
+
+@router.get("/{user_id}", response_model=UserOut)
+def read_user(user_id: int, db: Session = Depends(get_db)):
+    db_user = repository.get_user(db, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return db_user
+
+@router.get("/", response_model=list[UserOut])
+def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return repository.get_users(db, skip, limit)
