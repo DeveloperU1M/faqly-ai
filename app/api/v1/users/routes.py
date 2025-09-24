@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.core.database import get_db
-from app.api.v1.users import services, repository
+from app.database.session import get_db
+from app.api.v1.users import service, repository
 from app.api.v1.users.schemas import UserCreate, UserOut
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 @router.post("/", response_model=UserOut)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     try:
-        new_user = services.create_user_service(db, user)
+        new_user = service.create_user_service(db, user)
         return new_user
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

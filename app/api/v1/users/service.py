@@ -10,7 +10,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-def create_user_service(db: Session, user: UserCreate, hashed_password: str):
+def create_user_service(db: Session, user: UserCreate):
     existing = repository.get_user_by_email(db, user.email)
     if existing:
         raise ValueError("El email ya está registrado")
