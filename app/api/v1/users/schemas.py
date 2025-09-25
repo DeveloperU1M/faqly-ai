@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
-
+import uuid
 # --- Schemas de entrada ---
 class UserCreate(BaseModel):
     username: str
@@ -11,7 +11,7 @@ class UserCreate(BaseModel):
 
 # --- Schemas de salida ---
 class UserOut(BaseModel):
-    id: int
+    user_id: uuid.UUID
     username: str
     email: EmailStr
     full_name: Optional[str] = None

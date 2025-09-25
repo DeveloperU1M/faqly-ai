@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 from app.database.session import Base
-from app.models.knowledge_sections import KnowledgeSection
+from app.models.knowledge_section import KnowledgeSection
 from app.models.document import Document
 from app.models.user import User
 

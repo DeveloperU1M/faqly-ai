@@ -18,7 +18,7 @@ def get_user_by_email(db: Session, email: str) -> User | None:
     return db.query(User).filter(User.email == email).first()
 
 def get_user(db: Session, user_id: int) -> User | None:
-    return db.query(User).filter(User.id == user_id).first()
+    return db.query(User).filter(User.user_id == user_id).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 10) -> list[User]:
     return db.query(User).offset(skip).limit(limit).all()
