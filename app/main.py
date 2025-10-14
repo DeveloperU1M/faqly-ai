@@ -7,12 +7,7 @@ from app.core.exceptions import init_exception_handlers
 import datetime
 from app.services.gemini.main import router as gemini_router
 
-app = FastAPI(
-    title="FAQly AI",
-    description="API para gestión de FAQs con embeddings y búsqueda inteligente",
-    version="0.1.0",
-)
-init_exception_handlers(app)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,6 +17,16 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     print("Cerrando aplicación...")
+
+app = FastAPI(
+    title="FAQly AI",
+    description="API para gestión de FAQs con embeddings y búsqueda inteligente",
+    version="0.1.0",
+    lifespan=lifespan
+
+)
+
+init_exception_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,
