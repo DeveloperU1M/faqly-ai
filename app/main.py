@@ -3,14 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import session
 from app.api.v1 import api_router
-
+from app.core.exceptions import init_exception_handlers
 import datetime
+from app.services.gemini.main import router as gemini_router
 
 app = FastAPI(
     title="FAQly AI",
     description="API para gestión de FAQs con embeddings y búsqueda inteligente",
     version="0.1.0",
 )
+init_exception_handlers(app)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -37,3 +40,5 @@ async def get_status():
         "version": "0.1.0",
         "timestamp": datetime.datetime.utcnow().isoformat() + "Z"
     }
+
+app.include_router(gemini_router, prefix="/api/v1/gemini", tags=["Gemini AI"])

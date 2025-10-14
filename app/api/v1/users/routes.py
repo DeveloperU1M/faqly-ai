@@ -32,7 +32,6 @@ def read_user(
     return db_user
 
 @router.get("/", response_model=list[UserOut])
-@router.get("/", response_model=list[UserOut])
 def read_users(
     skip: int = 0,
     limit: int = 10,

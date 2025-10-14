@@ -8,6 +8,7 @@ from app.database.session import Base
 from app.models.knowledge_section import KnowledgeSection
 from app.models.document import Document
 from app.models.user import User
+from app.models.user_sessions import UserSession
 
 
 # this is the Alembic Config object, which provides

@@ -7,3 +7,6 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     sub: str | None = None  # user_id en el JWT
+
+class GoogleTokenRequest(BaseModel):
+    token: str

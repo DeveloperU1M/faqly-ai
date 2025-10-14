@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.api.v1.users import repository
 from app.api.v1.users.schemas  import UserCreate
 from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException, status
+from fastapi import  status
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

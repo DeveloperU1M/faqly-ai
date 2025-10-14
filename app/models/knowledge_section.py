@@ -14,5 +14,9 @@ class KnowledgeSection(Base):
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False)
+
+    user = relationship("User", back_populates="knowledge_sections")
+
     # relación con documentos
     documents = relationship("Document", back_populates="section")
