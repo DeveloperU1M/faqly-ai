@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.core.security import SECRET_KEY, ALGORITHM
@@ -18,14 +18,19 @@ def get_db():
 
 
 def get_current_user(
+    request: Request,
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
+    if hasattr(request.state, "current_user") and request.state.current_user:
+        return request.state.current_user
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="No se pudo validar las credenciales",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("user_id")
@@ -37,5 +42,7 @@ def get_current_user(
     user = db.query(User).filter(User.user_id == user_id).first()
     if user is None:
         raise credentials_exception
+
+    request.state.current_user = user
     return user
 

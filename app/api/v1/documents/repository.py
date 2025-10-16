@@ -18,8 +18,8 @@ def create_document(db: Session, doc_in: DocumentCreate, current_user: User):
     db.refresh(new_doc)
     return new_doc
 
-def get_documents(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(Document).offset(skip).limit(limit).all()
+def get_documents(current_user: User, db: Session, section_id: str, skip: int = 0, limit: int = 10):
+    return db.query(Document).filter(Document.section_id == section_id).offset(skip).limit(limit).all()
 
 def get_document(db: Session, document_id: str):
     return db.query(Document).filter(Document.document_id == document_id).first()

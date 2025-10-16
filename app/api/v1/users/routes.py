@@ -4,7 +4,7 @@ from app.database.session import get_db
 from app.api.v1.users import service, repository
 from app.api.v1.users.schemas import UserCreate, UserOut
 from app.core.dependencies import get_current_user
-
+import uuid
 router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("/", response_model=UserOut)
@@ -19,10 +19,14 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail="Error interno del servidor")
+    
+@router.get("/me", response_model=UserOut)
+def read_current_user(current_user: dict = Depends(get_current_user)):
+    return current_user
 
 @router.get("/{user_id}", response_model=UserOut)
 def read_user(
-    user_id: int,
+    user_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
@@ -39,3 +43,6 @@ def read_users(
     current_user: dict = Depends(get_current_user) 
 ):
     return repository.get_users(db, skip, limit)
+
+
+

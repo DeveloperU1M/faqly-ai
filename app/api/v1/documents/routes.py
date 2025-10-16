@@ -37,8 +37,14 @@ def download_document(
     )
 
 @router.get("/", response_model=List[DocumentResponse])
-def list_documents(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return list_documents_service(db, skip, limit)
+def list_documents(
+    current_user: User = Depends(get_current_user),
+    knowledge_section_id= str, 
+    skip: int = 0, 
+    limit:  int = 10, 
+    db: Session = Depends(get_db),
+):
+    return list_documents_service(current_user, db, knowledge_section_id, skip, limit)
 
 @router.get("/{document_id}", response_model=DocumentResponse)
 def get_document(document_id: str, db: Session = Depends(get_db)):

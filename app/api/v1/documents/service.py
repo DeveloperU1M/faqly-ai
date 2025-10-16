@@ -1,5 +1,6 @@
 import os
 from sqlalchemy.orm import Session
+from pathlib import Path
 from app.api.v1.documents.repository import create_document, get_documents, get_document, get_section_by_id, get_document_by_id
 from app.api.v1.documents.schemas import DocumentCreate
 from app.models.user import User
@@ -39,25 +40,35 @@ def create_document_service(db: Session, doc_in: DocumentCreate, current_user: U
     return create_document(db, new_doc)
 
 async def save_document_service(db: Session, file: UploadFile, section_id: str, current_user: User):
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
-    file_size = os.path.getsize(file_path)
+    try:
+        user_folder = Path(UPLOAD_DIR) / str(current_user.user_id) / "documents"
+        user_folder.mkdir(parents=True, exist_ok=True)
 
-    new_doc = Document(
-        title=file.filename,
-        description=None,
-        file_path=file_path,
-        file_type=file.content_type,
-        uploaded_by=current_user.user_id,
-        section_id=section_id,
-        file_size=file_size,
-        is_active=True
-    )
+        safe_filename = Path(file.filename).name  # evita rutas tipo "../malicioso.pdf"
+        file_path = user_folder / safe_filename
 
-    return create_document(db, new_doc, current_user)
-def list_documents_service(db: Session, skip: int = 0, limit: int = 10):
-    return get_documents(db, skip, limit)
+        with open(file_path, "wb") as buffer:
+            buffer.write(await file.read())
+
+        file_size = file_path.stat().st_size
+
+        new_doc = Document(
+            title=safe_filename,
+            description=None,
+            file_path=str(file_path),
+            file_type=file.content_type,
+            uploaded_by=current_user.user_id,
+            section_id=section_id,
+            file_size=file_size,
+            is_active=True
+        )
+
+        return create_document(db, new_doc, current_user)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al guardar el archivo: {str(e)}")
+def list_documents_service(current_user: User, db: Session, section_id: str, skip: int = 0, limit: int = 10,):
+    return get_documents(current_user, db, section_id, skip, limit)
 
 def get_document_service(db: Session, document_id: str):
     doc = get_document(db, document_id)

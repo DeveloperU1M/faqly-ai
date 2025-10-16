@@ -12,7 +12,15 @@ class KnowledgeSectionCreate(KnowledgeSectionBase):
 
 class KnowledgeSectionResponse(KnowledgeSectionBase):
     knowledge_section_id: uuid.UUID
+    document_count: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None 
+    class Config:
+        from_attributes = True
+
+class CreateKnowledgeSectionResponse(KnowledgeSectionBase):
+    knowledge_section_id: uuid.UUID
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        from_attributes = True<

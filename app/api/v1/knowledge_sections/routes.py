@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database.session import SessionLocal
-from app.api.v1.knowledge_sections.schemas import KnowledgeSectionCreate, KnowledgeSectionResponse
+from app.api.v1.knowledge_sections.schemas import KnowledgeSectionCreate, KnowledgeSectionResponse, CreateKnowledgeSectionResponse
 from app.api.v1.knowledge_sections.service import create_section_service, list_sections_service
 from app.core.dependencies import get_current_user
 from app.models.user import User
@@ -15,7 +15,7 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/", response_model=KnowledgeSectionResponse)
+@router.post("/", response_model=CreateKnowledgeSectionResponse)
 def create_knowledge_section(
     section: KnowledgeSectionCreate, 
     db: Session = Depends(get_db),

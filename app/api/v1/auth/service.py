@@ -1,16 +1,16 @@
 from datetime import timedelta
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from google.auth.transport import requests
 from google.oauth2 import id_token
 
-from app.core.security import verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+from app.core.security import verify_password, create_access_token, decode_token, create_refresh_token, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
 from app.models.user import User
 from datetime import datetime, timezone
 from app.api.v1.auth.repository import create_session
-from app.api.v1.users.repository import  get_user_by_email, create_user_from_google, get_user_by_google_id
-
+from app.api.v1.users.repository import  create_user_from_google, get_user_by_google_id, get_user
+from app.api.v1.auth.schemas import TokenRefreshRequest, TokenResponse
 
 import os
 from dotenv import load_dotenv
@@ -38,8 +38,7 @@ def authenticate_user(form_data: OAuth2PasswordRequestForm, db: Session, user_ag
         expires_delta=access_token_expires
     )
     refresh_token = create_refresh_token(
-        data={"sub": str(user.username), "user_id": str(user.user_id)},
-        expires_delta=refresh_token_expires
+        data={"sub": str(user.username), "user_id": str(user.user_id)}
     )
 
     # Guardar sesión en BD
@@ -59,33 +58,76 @@ def authenticate_user(form_data: OAuth2PasswordRequestForm, db: Session, user_ag
         "token_type": "bearer"
     }
 
-def create_refresh_token(data: dict):
-    expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    return create_access_token(data, expires)
+def refresh_access_token(data: TokenRefreshRequest, db: Session) -> TokenResponse:
+    payload = decode_token(data.refresh_token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token inválido o expirado"
+        )
 
-def login_with_google_service(token: str, db: Session):
+    user = get_user(db, payload["user_id"])
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado"
+        )
+
+    access_token_expires = timedelta(minutes=15)
+    new_access_token = create_access_token(
+        data={"sub": user.username, "user_id": str(user.user_id)},
+        expires_delta=access_token_expires
+    )
+
+    return {    
+            "access_token": new_access_token, 
+            "token_type": "bearer",
+            "user": {
+                "user_id": user.user_id,
+                "email": user.email,
+                "name": user.full_name,
+            }
+    }
+
+def login_with_google_service(token: str, db: Session, response: Response):
     try:
-        # 1️⃣ Verificar token de Google
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
         sub = idinfo["sub"]  # ID único de Google
         email = idinfo["email"]
         name = idinfo.get("name", "")
 
-        # 2️⃣ Buscar usuario por Google ID
         user = get_user_by_google_id(db, sub)
 
-        # 3️⃣ Si no existe, crear usuario
         if not user:
             user = create_user_from_google(db, email, sub, name)
 
-        # 4️⃣ Generar token interno
         access_token_expires = timedelta(minutes=15)
         access_token = create_access_token(
             data={"sub": user.username, "user_id": str(user.user_id)},
             expires_delta=access_token_expires
         )
 
-        return {"access_token": access_token, "token_type": "bearer"}
+        refresh_token = create_refresh_token(
+            data={"sub": user.username, "user_id": str(user.user_id)}
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,      
+            secure=False,       
+            samesite="lax",     
+            max_age=60 * 60 * 24 * 7  # 7 días
+        )
+
+        return {    
+                "access_token": access_token, 
+                "token_type": "bearer",
+                "user": {
+                    "user_id": user.user_id,
+                    "email": user.email,
+                    "name": user.full_name,
+                }
+        }
 
     except ValueError:
         raise HTTPException(

@@ -10,10 +10,10 @@ class KnowledgeSection(Base):
     __tablename__ = "knowledge_sections"
 
     knowledge_section_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, unique=True, nullable=False)
+    name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False)
 
     user = relationship("User", back_populates="knowledge_sections")
