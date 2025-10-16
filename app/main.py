@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
     print("Cerrando aplicación...")
 
 app = FastAPI(
+    root_path="/faqly-ai",
     title="FAQly AI",
     description="API para gestión de FAQs con embeddings y búsqueda inteligente",
     version="0.1.0",
