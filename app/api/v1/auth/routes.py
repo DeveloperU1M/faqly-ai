@@ -16,10 +16,17 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 
 
-@router.post("/refresh", response_model=TokenResponse)
-def refresh_token(data: TokenRefreshRequest, db: Session = Depends(get_db)):
-    return refresh_access_token(data, db)
 
+@router.post("/refresh", response_model=TokenResponse)
+def refresh_token(
+    refresh_token: str = Cookie(None),  # Lee la cookie llamada 'refresh_token'
+    db: Session = Depends(get_db)
+):
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="Missing refresh token cookie")
+
+    # Llama a la función que maneja la lógica, pasando el refresh_token y la db
+    return refresh_access_token(refresh_token, db)
 
 @router.post("/login/google" , response_model=TokenResponse)
 def login_with_google(payload: GoogleTokenRequest, response: Response, db: Session = Depends(get_db)):
