@@ -84,4 +84,4 @@ htmlcov/
 .nox/
 .coverage
 .coverage.*
-uploads/
+uploads/*

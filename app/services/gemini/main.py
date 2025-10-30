@@ -17,3 +17,4 @@ async def ask_route(
         return AskResponse(answer=answer)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+

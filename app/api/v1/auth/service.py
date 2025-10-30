@@ -58,8 +58,8 @@ def authenticate_user(form_data: OAuth2PasswordRequestForm, db: Session, user_ag
         "token_type": "bearer"
     }
 
-def refresh_access_token(data: TokenRefreshRequest, db: Session) -> TokenResponse:
-    payload = decode_token(data.refresh_token)
+def refresh_access_token(refresh_token: TokenRefreshRequest, db: Session) -> TokenResponse:
+    payload = decode_token(refresh_token)
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

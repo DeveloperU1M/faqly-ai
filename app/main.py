@@ -31,7 +31,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "https://front-chatbot-demo-a73e.vercel.app",
-        "https://www.front-chatbot-demo-a73e.vercel.app"
+        "https://www.front-chatbot-demo-a73e.vercel.app",
+        "http://127.0.0.1:64809"
     ],
     allow_credentials=True,
     allow_methods=["*"],

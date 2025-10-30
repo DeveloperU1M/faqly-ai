@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Widget</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: transparent;
+    }
+
+    /* Burbuja flotante */
+    #chat-bubble {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #2563eb;
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      transition: transform 0.3s ease;
+    }
+
+    #chat-bubble:hover {
+      transform: scale(1.1);
+    }
+
+    /* Contenedor del chat */
+    #chat-container {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      width: 360px;
+      height: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10000;
+    }
+
+    #chat-header {
+      background-color: #2563eb;
+      color: white;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    #chat-messages {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background-color: #2563eb;
+      color: white;
+      align-self: flex-end;
+    }
+
+    .bot {
+      background-color: #f1f1f1;
+      color: #111;
+      align-self: flex-start;
+    }
+
+    #chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+
+    #send-button {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      cursor: pointer;
+      border-radius: 0;
+      transition: background 0.3s ease;
+    }
+
+    #send-button:hover {
+      background: #1d4ed8;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Burbuja -->
+  <div id="chat-bubble">💬</div>
+
+  <!-- Chat -->
+  <div id="chat-container">
+    <div id="chat-header">Asistente Virtual</div>
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="text" id="message-input" placeholder="Escribe tu mensaje..." />
+      <button id="send-button">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    let agentId = params.get("agent_id");
+
+    if (!agentId) {
+      // Extraer desde la ruta (última parte de la URL)
+      const pathParts = window.location.pathname.split("/");
+      agentId = pathParts[pathParts.length - 1] || null;
+    }
+
+    const apiUrl = (params.get("api_url") || `${window.location.origin}/api/v1`).replace(/\/+$/, "");
+
+    const chatBubble = document.getElementById("chat-bubble");
+    const chatContainer = document.getElementById("chat-container");
+    const chatMessages = document.getElementById("chat-messages");
+    const messageInput = document.getElementById("message-input");
+    const sendButton = document.getElementById("send-button");
+
+    chatBubble.addEventListener("click", () => {
+      chatContainer.style.display =
+        chatContainer.style.display === "none" || chatContainer.style.display === ""
+          ? "flex"
+          : "none";
+    });
+
+    sendButton.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      appendMessage("user", text);
+      messageInput.value = "";
+      appendMessage("bot", "🕒 Pensando...");
+
+      try {
+        const response = await fetch(`${apiUrl}/agents/${agentId}/message`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+
+        const data = await response.json();
+        chatMessages.lastElementChild.remove(); // Elimina el "Pensando..."
+        appendMessage("bot", data.response || "No hubo respuesta del agente.");
+      } catch (error) {
+        chatMessages.lastElementChild.remove();
+        appendMessage("bot", "❌ Error al comunicarse con el servidor.");
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.textContent = text;
+      chatMessages.appendChild(msg);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  </script>
+</body>
+
+</html>

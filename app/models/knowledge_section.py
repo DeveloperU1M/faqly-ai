@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 from app.database.session import Base
 import uuid
-
+from app.models.agent import agent_sections
 
 class KnowledgeSection(Base):
     __tablename__ = "knowledge_sections"
@@ -20,3 +20,4 @@ class KnowledgeSection(Base):
 
     # relación con documentos
     documents = relationship("Document", back_populates="section")
+    agents = relationship("Agent", secondary=agent_sections, back_populates="sections")

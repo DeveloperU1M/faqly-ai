@@ -21,3 +21,4 @@ class User(Base):
     documents = relationship("Document", back_populates="uploader")
     knowledge_sections = relationship("KnowledgeSection", back_populates="user")
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
+    agents = relationship("Agent", back_populates="user")
