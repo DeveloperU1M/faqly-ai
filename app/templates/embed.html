@@ -144,7 +144,7 @@
       agentId = pathParts[pathParts.length - 1] || null;
     }
 
-    const apiUrl = (params.get("api_url") || `${window.location.origin}/api/v1/faqly-ai`).replace(/\/+$/, "");
+    const apiUrl = (params.get("api_url") || `${window.location.origin}/faqly-ai/api/v1`).replace(/\/+$/, "");
 
     const chatBubble = document.getElementById("chat-bubble");
     const chatContainer = document.getElementById("chat-container");
