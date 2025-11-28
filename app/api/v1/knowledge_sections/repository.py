@@ -22,6 +22,7 @@ def get_sections(db: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 10
         )
         .outerjoin(Document, Document.section_id == KnowledgeSection.knowledge_section_id)
         .filter(KnowledgeSection.user_id == user_id)
+        .filter(KnowledgeSection.is_active == True) 
         .group_by(KnowledgeSection.knowledge_section_id)
         .offset(skip)
         .limit(limit)
@@ -43,3 +44,15 @@ def get_sections(db: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 10
     ]
 
     return sections
+
+def deactivate_section(db, section: KnowledgeSection):
+    section.is_active = False
+    db.add(section)
+    db.commit()
+    db.refresh(section)
+    return section
+
+def get_section_by_id(db, section_id: uuid.UUID):
+    return db.query(KnowledgeSection).filter(
+        KnowledgeSection.knowledge_section_id == section_id
+    ).first()

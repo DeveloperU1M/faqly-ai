@@ -17,7 +17,7 @@ class KnowledgeSection(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.user_id"), nullable=False)
 
     user = relationship("User", back_populates="knowledge_sections")
-
+    is_active = Column(Boolean, default=True)
     # relación con documentos
     documents = relationship("Document", back_populates="section")
     agents = relationship("Agent", secondary=agent_sections, back_populates="sections")

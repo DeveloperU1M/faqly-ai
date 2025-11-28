@@ -2,7 +2,10 @@ from sqlalchemy.orm import Session
 from app.models.agent import Agent
 from app.models.document import Document
 from app.models.knowledge_section import KnowledgeSection
-
+from app.models.conversation import Conversation
+from app.models.conversation_message import ConversationMessage
+import uuid
+from datetime import datetime
 
 def save_agent(db: Session, agent: Agent):
     db.add(agent)
@@ -10,9 +13,6 @@ def save_agent(db: Session, agent: Agent):
     db.refresh(agent)
     return agent
 
-
-def get_agent_by_id(db: Session, agent_id):
-    return db.query(Agent).filter(Agent.agent_id == agent_id).first()
 
 def get_agents(db: Session, skip: int = 0, limit: int = 10, is_active: bool | None = None):
     query = db.query(Agent)
@@ -25,11 +25,6 @@ def get_agents(db: Session, skip: int = 0, limit: int = 10, is_active: bool | No
 
     return total, agents
 
-def get_agent_by_id(db: Session, agent_id: int):
-    """
-    Consulta en la base de datos el agente según su ID.
-    """
-    return db.query(Agent).filter(Agent.agent_id == agent_id).first()
 
 def get_agent_by_id(db: Session, agent_id: str):
     """
@@ -59,3 +54,29 @@ def get_documents_by_section(db: Session, section_id: str):
         .filter(Document.section_id == section_id)
         .all()
     )
+def save_message(db, conversation_id, user_message, bot_response):
+
+        message = ConversationMessage(
+            id=uuid.uuid4(),
+            conversation_id=conversation_id,
+            user_message=user_message,
+            bot_message=bot_response,
+            created_at=datetime.utcnow()
+        )
+
+        db.add(message)
+        db.commit()
+        db.refresh(message)
+
+        return message
+    
+def create(db, agent_id: str, user_id: str, title: str) -> Conversation:
+    conversation = Conversation(
+        agent_id=agent_id,
+        title=title
+    )
+
+    db.add(conversation)
+    db.commit()
+    db.refresh(conversation)
+    return conversation

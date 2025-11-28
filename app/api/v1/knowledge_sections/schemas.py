@@ -24,3 +24,12 @@ class CreateKnowledgeSectionResponse(KnowledgeSectionBase):
 
     class Config:
         from_attributes = True
+
+class DesactivateSectionResponse(BaseModel):
+    knowledge_section_id: uuid.UUID
+    name: str
+    is_active: bool
+    updated_at: datetime
+
+    class Config:
+        from_attributes  = True

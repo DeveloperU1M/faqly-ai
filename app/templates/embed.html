@@ -2,200 +2,517 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat Widget</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Widget</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> 
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: transparent;
-    }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: transparent;
+        }
 
-    /* Burbuja flotante */
-    #chat-bubble {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #2563eb;
-      color: white;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      z-index: 9999;
-      transition: transform 0.3s ease;
-    }
+        /* Burbuja flotante */
+        #chat-bubble {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2563eb;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            transition: transform 0.3s ease;
+        }
 
-    #chat-bubble:hover {
-      transform: scale(1.1);
-    }
+        #chat-bubble:hover {
+            transform: scale(1.1);
+        }
 
-    /* Contenedor del chat */
-    #chat-container {
-      position: fixed;
-      bottom: 100px;
-      right: 20px;
-      width: 360px;
-      height: 500px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 10000;
-    }
+        /* Contenedor del chat */
+        #chat-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 360px;
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10000;
+        }
 
-    #chat-header {
-      background-color: #2563eb;
-      color: white;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-    }
+        #chat-header {
+          background-color: rgb(59, 130, 246);
+            color: white;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .message .user {
+            background-color: rgb(59, 130, 246);
+            color: white;
+        }
+        #chat-body {
+            flex: 1;
+            display: flex;
+            overflow-y: auto;
+            flex-direction: column;
+        }
 
-    #chat-messages {
-      flex: 1;
-      padding: 12px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-    }
+        /* Vista de mensajes */
+        #chat-messages {
+            flex: 1;
+            padding: 12px;
+            /* ✅ CLAVE PARA EL SCROLL: overflow-y: auto; */
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+        }
 
-    .message {
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 10px;
-      max-width: 80%;
-      word-wrap: break-word;
-    }
+        /* Vista de inicio */
+        #chat-start-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
 
-    .user {
-      background-color: #2563eb;
-      color: white;
-      align-self: flex-end;
-    }
+        #start-button {
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
 
-    .bot {
-      background-color: #f1f1f1;
-      color: #111;
-      align-self: flex-start;
-    }
+        #start-button:hover {
+            background: #1d4ed8;
+        }
 
-    #chat-input {
-      display: flex;
-      border-top: 1px solid #ddd;
-    }
+        /* Estilos de mensajes */
+        .message-row {
+            display: flex;
+            margin: 8px 0;
+            max-width: 100%;
+        }
 
-    #message-input {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      outline: none;
-    }
+        .user-row {
+            justify-content: flex-end;
+        }
 
-    #send-button {
-      background: #2563eb;
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      cursor: pointer;
-      border-radius: 0;
-      transition: background 0.3s ease;
-    }
+        .bot-row {
+            justify-content: flex-start;
+        }
 
-    #send-button:hover {
-      background: #1d4ed8;
-    }
-  </style>
+        .message {
+            padding: 10px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .message .bot {
+          background: white;
+        }
+        .user .message {
+            background-color: #2563eb; 
+            color: white; 
+            border-bottom-right-radius: 2px;
+        }
+        
+        /* 🎨 CORRECCIÓN CLAVE: Asegura el color blanco para todos los elementos de Markdown del usuario */
+        .user .message * {
+            color: white; /* Fuerza el color blanco para todos los hijos */
+        }
+        
+        .user .message a {
+            color: #93c5fd; /* Color de enlace diferente para accesibilidad */
+        }
+
+        .user .message code {
+            background-color: #1d4ed8; 
+        }
+        
+        .user .message pre {
+            /* Mantiene la apariencia de bloque de código oscuro en mensajes de usuario */
+            background-color: #1d4ed8; 
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+
+        .bot .message {
+            background-color: #f1f1f1;
+            color: #111;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 2px;
+        }
+
+        /* 🚀 ESTILOS PARA ELEMENTOS DE MARKDOWN GENERADOS POR BOT */
+        .bot .message p {
+            margin: 0 0 8px 0; 
+            line-height: 1.5;
+        }
+
+        .bot .message p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .bot .message strong {
+            font-weight: bold;
+        }
+        
+        .bot .message ul, .bot .message ol {
+            margin: 8px 0 8px 0;
+            padding-left: 20px;
+        }
+
+        .bot .message li {
+            margin-bottom: 4px;
+        }
+
+        .bot .message code {
+            background-color: #e6e6e6;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #111;
+        }
+
+        .bot .message pre {
+            background-color: #333;
+            color: #f1f1f1;
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .bot .message pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            display: block;
+            white-space: pre-wrap; 
+        }
+
+        /* Estilos de input y botón */
+        #chat-input-area {
+            display: flex;
+            border-top: 1px solid #ddd;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+
+        #send-button {
+            background: #2563eb;
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            cursor: pointer;
+            border-radius: 0;
+            transition: background 0.3s ease;
+        }
+
+        #send-button:disabled {
+            background: #93c5fd;
+            cursor: default;
+        }
+        
+        /* Indicador de Typing */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            background-color: #f1f1f1;
+            padding: 8px 12px;
+            border-radius: 12px;
+            width: fit-content;
+            margin: 8px 0;
+            border: 1px solid #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #999;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0s;
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+    </style>
 </head>
 
 <body>
 
-  <!-- Burbuja -->
-  <div id="chat-bubble">💬</div>
+    <div id="chat-bubble">💬</div>
 
-  <!-- Chat -->
-  <div id="chat-container">
-    <div id="chat-header">Asistente Virtual</div>
-    <div id="chat-messages"></div>
-    <div id="chat-input">
-      <input type="text" id="message-input" placeholder="Escribe tu mensaje..." />
-      <button id="send-button">Enviar</button>
+    <div id="chat-container">
+        <div id="chat-header">Asistente Virtual</div>
+        <div id="chat-body">
+            <div id="chat-start-screen">
+                <p>Bienvenido al chat. Haz clic para iniciar una conversación con nuestro asistente.</p>
+                <button id="start-button">Iniciar Chat</button>
+            </div>
+            
+            <div id="chat-messages" style="display: none; overflow-y:auto"></div>
+            
+        </div>
+        
+        <div id="chat-input-area">
+            <input type="text" id="message-input" placeholder="Inicia el chat para escribir..." disabled />
+            <button id="send-button" disabled>Enviar</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    let agentId = params.get("agent_id");
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        let agentId = params.get("agent_id");
+        if (!agentId) {
+            const pathParts = window.location.pathname.split("/");
+            agentId = pathParts[pathParts.length - 1] || null;
+        }
 
-    if (!agentId) {
-      // Extraer desde la ruta (última parte de la URL)
-      const pathParts = window.location.pathname.split("/");
-      agentId = pathParts[pathParts.length - 1] || null;
-    }
+        const apiUrl = (params.get("api_url") || `${window.location.origin}/faqly-ai/api/v1`).replace(/\/+$/, "");
 
-    const apiUrl = (params.get("api_url") || `${window.location.origin}/faqly-ai/api/v1`).replace(/\/+$/, "");
+        const chatBubble = document.getElementById("chat-bubble");
+        const chatContainer = document.getElementById("chat-container");
+        const chatBody = document.getElementById("chat-body");
+        const chatMessages = document.getElementById("chat-messages");
+        const chatStartScreen = document.getElementById("chat-start-screen");
+        const startButton = document.getElementById("start-button");
+        const messageInput = document.getElementById("message-input");
+        const sendButton = document.getElementById("send-button");
 
-    const chatBubble = document.getElementById("chat-bubble");
-    const chatContainer = document.getElementById("chat-container");
-    const chatMessages = document.getElementById("chat-messages");
-    const messageInput = document.getElementById("message-input");
-    const sendButton = document.getElementById("send-button");
+        // 🔑 Variables de estado
+        let conversationId = null;
+        let isTyping = false;
+        let isChatActive = false; 
+        
+        // --- 1. Control de Visibilidad del Chat ---
 
-    chatBubble.addEventListener("click", () => {
-      chatContainer.style.display =
-        chatContainer.style.display === "none" || chatContainer.style.display === ""
-          ? "flex"
-          : "none";
-    });
-
-    sendButton.addEventListener("click", sendMessage);
-    messageInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
-
-    async function sendMessage() {
-      const text = messageInput.value.trim();
-      if (!text) return;
-
-      appendMessage("user", text);
-      messageInput.value = "";
-      appendMessage("bot", "🕒 Pensando...");
-
-      try {
-        const response = await fetch(`${apiUrl}/agents/${agentId}/message`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: text }),
+        chatBubble.addEventListener("click", () => {
+            const isVisible = chatContainer.style.display === "flex";
+            chatContainer.style.display = isVisible ? "none" : "flex";
+            if (!isVisible && !isChatActive) {
+                showStartScreen(); 
+            } else if (!isVisible && isChatActive) {
+                showChatMessages();
+            }
         });
 
-        const data = await response.json();
-        chatMessages.lastElementChild.remove(); // Elimina el "Pensando..."
-        appendMessage("bot", data.response || "No hubo respuesta del agente.");
-      } catch (error) {
-        chatMessages.lastElementChild.remove();
-        appendMessage("bot", "❌ Error al comunicarse con el servidor.");
-      }
-    }
+        // --- 2. Funciones de Vista ---
 
-    function appendMessage(sender, text) {
-      const msg = document.createElement("div");
-      msg.classList.add("message", sender);
-      msg.textContent = text;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-  </script>
+        function showStartScreen() {
+            chatStartScreen.style.display = 'flex';
+            chatMessages.style.display = 'none';
+            messageInput.placeholder = "Inicia el chat para escribir...";
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+        }
+
+        function showChatMessages() {
+            chatStartScreen.style.display = 'none';
+            chatMessages.style.display = 'flex';
+            messageInput.placeholder = "Escribe tu mensaje...";
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+        }
+
+        // --- 3. Inicio de Conversación ---
+        
+        startButton.addEventListener("click", startNewConversation);
+
+        async function startNewConversation() {
+            if (isTyping || isChatActive) return;
+            
+            isTyping = true;
+            startButton.disabled = true;
+            startButton.textContent = "Cargando...";
+
+            try {
+                const response = await fetch(`${apiUrl}/agents/conversations/create`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        agent_id: agentId,
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.id) {
+                    conversationId = data.id;
+                    isChatActive = true;
+                    showChatMessages();
+
+                    const welcomeMessage = data.welcome_message || "¡Hola! ¿Cómo puedo ayudarte hoy?";
+                    appendMessage("bot", welcomeMessage);
+
+                    messageInput.placeholder = "Escribe tu mensaje...";
+                    messageInput.disabled = false;
+                    sendButton.disabled = false;
+
+                } else {
+                    appendMessage("bot", "❌ Error al iniciar la conversación.");
+                    showStartScreen();
+                }
+            } catch (error) {
+                console.error("Error al iniciar la conversación:", error);
+                appendMessage("bot", "❌ Error de red al iniciar la conversación.");
+                showStartScreen();
+            } finally {
+                isTyping = false;
+                startButton.disabled = false;
+                startButton.textContent = "Iniciar Chat";
+            }
+        }
+
+        // --- 4. Envío de Mensaje ---
+
+        sendButton.addEventListener("click", sendMessage);
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || isTyping || !conversationId) return;
+
+            // 1. Añadir mensaje de usuario y limpiar input
+            appendMessage("user", text);
+            messageInput.value = "";
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            // 2. Mostrar indicador de typing
+            isTyping = true;
+            const typingElement = appendTypingIndicator();
+
+            try {
+                const response = await fetch(`${apiUrl}/agents/${agentId}/message/${conversationId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        message: text,
+                    }),
+                });
+
+                const data = await response.json();
+                
+                // 3. Eliminar indicador y mostrar respuesta
+                typingElement.remove(); 
+                
+                const botResponse = data.response || "No hubo respuesta del agente.";
+                appendMessage("bot", botResponse);
+
+            } catch (error) {
+                console.error("Error al enviar mensaje:", error);
+                typingElement.remove();
+                appendMessage("bot", "❌ Error al comunicarse con el servidor.");
+            } finally {
+                // 4. Finalizar
+                isTyping = false;
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        // --- 5. Renderizado de Mensajes ---
+
+        function appendMessage(sender, text) {
+            const isUser = sender === "user";
+            
+            const messageRow = document.createElement("div");
+            messageRow.classList.add("message-row", isUser ? "user-row" : "bot-row");
+
+            const msg = document.createElement("div");
+            msg.classList.add("message", sender);
+            
+            // marked.parse() convierte el texto Markdown a HTML
+            msg.innerHTML = marked.parse(text); 
+            
+            messageRow.appendChild(msg);
+            chatMessages.appendChild(messageRow);
+            
+            // ✅ SCROLL AUTOMÁTICO: Confirma la lógica
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function appendTypingIndicator() {
+            const messageRow = document.createElement("div");
+            messageRow.classList.add("message-row", "bot-row");
+            
+            const typing = document.createElement("div");
+            typing.classList.add("typing-indicator");
+            
+            typing.innerHTML = `
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            `;
+            
+            messageRow.appendChild(typing);
+            chatMessages.appendChild(messageRow);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageRow;
+        }
+        
+        // Inicializar la vista al cargar
+        showStartScreen();
+    </script>
 </body>
 
 </html>

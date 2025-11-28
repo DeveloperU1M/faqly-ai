@@ -1,4 +1,3 @@
-# app/services/gemini/main.py
 from fastapi import APIRouter, Depends, HTTPException
 from app.services.gemini.schemas import AskRequest, AskResponse
 from app.services.gemini.interface import ask_ai

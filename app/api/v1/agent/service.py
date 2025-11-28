@@ -10,8 +10,9 @@ from app.models.knowledge_section import KnowledgeSection
 from app.api.v1.agent.schemas import AgentListResponse
 from app.services.gemini.interface import ask_ai
 from pathlib import Path
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./uploads")
+from fastapi import HTTPException
 
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./uploads")
 
 def create_agent_service(db: Session, agent_data: schemas.AgentCreate, user_id: uuid.UUID):
     """
@@ -99,3 +100,28 @@ async def chat_with_agent(db: Session, agent_id: str, user_message: str) -> str 
     response = await ask_ai(name= agent.name,prompt=user_message, context=final_context)
 
     return response
+
+def save_message_to_conversation(db: Session, conversation_id, user_message, bot_response):
+    repository.save_message(
+        db=db,
+        conversation_id=conversation_id,
+        user_message=user_message,
+        bot_response=bot_response
+    )
+    
+def create_conversation(db: Session, agent_id: str, title: str):
+    # Validar que el agente pertenece al usuario
+    agent = repository.get_agent_by_id(db, agent_id)
+
+    if not agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+
+    conversation = repository.create(
+        db=db,
+        agent_id=agent_id,
+        user_id=agent.created_by,
+        title=title
+    )
+
+    return conversation

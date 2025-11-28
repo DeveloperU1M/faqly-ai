@@ -12,13 +12,14 @@ class AgentBase(BaseModel):
 
 class AgentCreate(AgentBase):
     section_ids: Optional[List[uuid.UUID]] = Field(default_factory=list)
+    color: str
 
 
 class AgentResponse(AgentBase):
     agent_id: uuid.UUID
     name: str
-    created_at: Optional[datetime]  # ✅ antes era str
-
+    created_at: Optional[datetime] 
+    welcome_message: str | None = None
     class Config:
         from_attributes = True
 
@@ -32,3 +33,16 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
+    
+    
+class ConversationCreate(BaseModel):
+    agent_id: str
+    title: str | None = "Nueva Conversación"
+
+class ConversationResponse(BaseModel):
+    id: uuid.UUID
+    agent_id: uuid.UUID
+    title: str
+    created_at: datetime
+    class Config:
+        from_attributes = True

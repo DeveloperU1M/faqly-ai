@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, status, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.api.v1.agent import repository
 from app.database.session import get_db
@@ -43,16 +43,34 @@ def list_agents(
 @router.get("/{agent_id}", response_model=schemas.AgentResponse)
 def get_agent_by_id(agent_id: UUID, db: Session = Depends(get_db)):
     agent = service.get_agent_by_id(db, agent_id)
+    agent.welcome_message = f"¡Hola! Soy tu agente virtual {agent.name}. ¿Cómo puedo ayudarte hoy?"
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
     return agent
 
 
-@router.post("/{agent_id}/message", response_model=schemas.ChatResponse)
-async def chat_with_agent(agent_id: str, payload: schemas.ChatRequest, db: Session = Depends(get_db)):
+@router.post("/{agent_id}/message/{conversation_id}", response_model=schemas.ChatResponse)
+async def chat_with_agent( 
+    agent_id: str,
+    conversation_id: str,
+    payload: schemas.ChatRequest,
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = None
+):
     result = await service.chat_with_agent(db, agent_id, payload.message)
+
     if not result:
         raise HTTPException(status_code=500, detail="Error processing message")
+
+    # Guardado en segundo plano
+    background_tasks.add_task(
+        service.save_message_to_conversation,
+        db,
+        conversation_id,
+        payload.message,
+        result
+    )
+
     return schemas.ChatResponse(response=result)
 
 
@@ -71,3 +89,15 @@ async def render_iframe(request: Request, agent_id: str, db: Session = Depends(g
             "agent": agent
         }
     )
+    
+@router.post("/conversations/create", response_model=schemas.ConversationResponse)
+def create_conversation(
+    body: schemas.ConversationCreate,
+    db: Session = Depends(get_db)
+):
+    conversation = service.create_conversation(
+        db=db,
+        agent_id=body.agent_id,
+        title=body.title
+    )
+    return conversation

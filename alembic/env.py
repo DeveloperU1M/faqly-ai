@@ -10,7 +10,8 @@ from app.models.document import Document
 from app.models.user import User
 from app.models.user_sessions import UserSession
 from app.models.agent import Agent
-
+from app.models.conversation import Conversation
+from app.models.conversation_message import ConversationMessage
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database.session import SessionLocal
-from app.api.v1.knowledge_sections.schemas import KnowledgeSectionCreate, KnowledgeSectionResponse, CreateKnowledgeSectionResponse
-from app.api.v1.knowledge_sections.service import create_section_service, list_sections_service
+from app.api.v1.knowledge_sections.schemas import KnowledgeSectionCreate, KnowledgeSectionResponse, CreateKnowledgeSectionResponse, DesactivateSectionResponse 
+from app.api.v1.knowledge_sections  import service
 from app.core.dependencies import get_current_user
 from app.models.user import User
 
@@ -21,7 +21,7 @@ def create_knowledge_section(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user) 
 ):
-    return create_section_service(db, section, current_user)
+    return service.create_section_service(db, section, current_user)
 
 @router.get("/", response_model=list[KnowledgeSectionResponse])
 def list_sections(
@@ -30,4 +30,8 @@ def list_sections(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return list_sections_service(db, current_user, skip, limit)
+    return service.list_sections_service(db, current_user, skip, limit)
+
+@router.patch("/{section_id}/deactivate", response_model=DesactivateSectionResponse)
+def deactivate_section(section_id: str, db: Session = Depends(get_db)):
+    return service.deactivate_section(db, section_id)

@@ -28,12 +28,16 @@ async def generate_content(name: str, full_prompt: str):
         
         # 2. Corrección en la Regla 3: El agente se presenta usando {name}
         f"\n3. **CORTESÍA (EXCEPCIÓN):** Si la pregunta del usuario es un saludo ('hola', 'qué tal', 'gracias', 'adiós') o una pregunta trivial que NO requiere datos específicos, "
-        f"responde de manera **amable y breve** (ej. '¡Hola! Soy el Agente {name}. ¿En qué puedo ayudarte hoy?'). **Ignora las reglas 1 y 4** para estas interacciones."
+        f"responde de manera **amable y breve** (ej. '¡Hola! Soy el Agente {name}. ¿En qué puedo ayudarte hoy?'). **Ignora las reglas 1, 4 y 6** para estas interacciones."
         
         "\n4. **AUSENCIA DE DATOS (Fallo RAG):** Si la respuesta a una pregunta sustantiva NO se encuentra en el contexto, "
         "debes responder **EXACTAMENTE** con esta frase: 'Lo siento, la información solicitada no se encuentra en las fuentes de datos disponibles.'"
         
         "\n5. **ESTILO:** Mantén las respuestas concisas, profesionales y directas al grano, citando implícitamente la fuente."
+        
+        # NUEVA REGLA DE FORMATO
+        "\n6. **FORMATO:** Formatea siempre la respuesta final usando **Markdown** para mejorar la legibilidad. Utiliza encabezados (## o ###), listas (`*` o `1.`), y **negritas** para estructurar claramente la información."
+        "response_language_rule:" f"\n\n**REGLA DE IDIOMA:** Responde SIEMPRE en el idioma en que se formuló la pregunta."
     )
     
     # El modelo se inicializa con el SYSTEM_INSTRUCTION dinámico

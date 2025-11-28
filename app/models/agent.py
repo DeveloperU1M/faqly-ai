@@ -21,7 +21,6 @@ class Agent(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     is_active = Column(Boolean, default=True)
     icon_agent = Column(String, nullable=True)
-    # Configuración del modelo (ej. temperatura, modelo LLM, etc.)
     config = Column(JSON, nullable=True)
 
     # Relación con usuario
@@ -32,11 +31,5 @@ class Agent(Base):
     user = relationship("User", back_populates="agents")
 
     creator = relationship("User", back_populates="agents")
+    conversations = relationship("Conversation", back_populates="agent")
 
-# Y en Document y KnowledgeSection deberás agregar el back_populates:
-
-# En Document:
-#   agents = relationship("Agent", secondary=agent_documents, back_populates="documents")
-
-# En KnowledgeSection:
-# agents = relationship("Agent", secondary=agent_sections, back_populates="sections")
