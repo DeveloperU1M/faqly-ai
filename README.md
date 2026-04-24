@@ -1,7 +1,3 @@
-Este proyecto suena muy sólido técnica y comercialmente. Al ser un SaaS basado en RAG (Retrieval-Augmented Generation), el README debe proyectar robustez y facilidad de despliegue.
-
-Aquí tienes una propuesta de README.md profesional y estructurada para impactar en un CV:
-
 Faqly AI (DocuChat) 🤖📄
 Faqly AI es una plataforma SaaS de vanguardia diseñada para transformar documentos estáticos en asistentes conversacionales inteligentes. Utilizando técnicas de RAG (Retrieval-Augmented Generation), el sistema permite a los usuarios interactuar con sus archivos (.pdf, .docx, .pptx) de manera natural, obteniendo respuestas precisas basadas exclusivamente en el contexto proporcionado.
 
